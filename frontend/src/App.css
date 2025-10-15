@@ -1,0 +1,204 @@
+/* App.css — STYLES FUTURISTA GLASSMORPHISM + CARRUSEL HORIZONTAL */
+
+/* Reset & background */
+:root{
+  --glass-bg: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --neon: rgba(64, 200, 255, 0.95);
+  --accent: rgba(170, 85, 255, 0.95);
+  --muted: rgba(255,255,255,0.6);
+  --card-radius: 14px;
+  --glass-blur: 8px;
+}
+
+html,body,#root{height:100%;margin:0;background:linear-gradient(180deg,#070617 0%, #0b0f1a 100%);font-family:Inter, Arial, sans-serif;color:white;overflow:hidden}
+
+/* app shell holds background + UI card centered */
+.app-shell{
+  position:relative;
+  width:100%;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* UI card: glass panel */
+.ui-card{
+  position:relative;
+  width:94%;
+  max-width:1100px;
+  margin:20px;
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:20px;
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+  padding:20px 22px;
+  z-index:2;
+}
+
+/* Header / search */
+.ui-header{
+  display:flex;
+  gap:18px;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+
+.brand{
+  margin:0;
+  font-size:1.4rem;
+  letter-spacing:1px;
+  color:var(--neon);
+  text-shadow:0 6px 20px rgba(64,200,255,0.06);
+}
+
+.search-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.search-input{
+  padding:10px 12px;
+  width:280px;
+  border-radius:10px;
+  border:none;
+  background:rgba(255,255,255,0.03);
+  color:white;
+  outline:none;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.02);
+}
+
+.search-btn{
+  background:linear-gradient(90deg,var(--neon),var(--accent));
+  border:none;
+  padding:10px 14px;
+  border-radius:10px;
+  color:black;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 6px 20px rgba(64,200,255,0.08);
+}
+
+/* Error bar */
+.error-bar{
+  margin:10px 0;
+  padding:10px 12px;
+  background:rgba(255,40,40,0.08);
+  border-left:3px solid rgba(255,40,40,0.4);
+  color:#ffd6d6;
+  border-radius:8px;
+}
+
+/* Current section: left (info) and right (advice) */
+.current-section{
+  display:flex;
+  gap:18px;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:8px;
+  padding:14px;
+  border-radius:12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.03);
+}
+
+/* Left side */
+.current-left{
+  flex:1;
+}
+
+.city-name{margin:0;font-size:1.6rem;color:var(--neon)}
+.meta-row{display:flex;gap:12px;align-items:center;margin-top:6px;color:var(--muted)}
+.temp-large{font-size:2.6rem;margin-top:10px;color:white}
+.desc-large{font-size:1.05rem;color:var(--muted);margin-top:6px}
+.wind{margin-top:8px;color:rgba(255,255,255,0.8)}
+
+/* Right: big message card */
+.current-right{width:320px;flex-shrink:0}
+.big-advice{
+  background:linear-gradient(180deg, rgba(170,85,255,0.14), rgba(64,200,255,0.06));
+  border-radius:12px;
+  padding:16px;
+  color:white;
+  font-weight:600;
+  box-shadow: 0 10px 40px rgba(64,200,255,0.03);
+  border:1px solid rgba(255,255,255,0.04);
+}
+
+/* Forecast section */
+.forecast-section{margin-top:18px}
+.section-title{margin:0 0 10px 6px;color:var(--muted);font-weight:600}
+
+/* Carrusel outer + track */
+.forecast-outer{
+  overflow-x: auto;
+  padding:12px 6px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.02);
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+}
+
+.forecast-track{
+  display:flex;
+  gap:12px;
+  align-items:stretch;
+  padding-bottom:6px;
+}
+
+/* Forecast card */
+.forecast-card{
+  min-width:220px;
+  max-width:260px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius:12px;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  border:1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+  transform: translateZ(0);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.forecast-card:hover{ transform: translateY(-6px) scale(1.02); box-shadow: 0 18px 40px rgba(90,70,200,0.14); }
+
+/* Top area: time + icon */
+.card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.time{font-weight:700;color:var(--accent)}
+.card-middle{margin-top:8px}
+.temp{font-size:1.3rem;font-weight:700}
+.desc{color:var(--muted);font-size:0.95rem;margin-top:6px}
+.advice{margin-top:10px;color:#dbeafe;font-size:0.95rem;}
+
+/* Footer */
+.ui-footer{margin-top:12px;text-align:center;color:rgba(255,255,255,0.45);font-size:0.85rem}
+
+/* Star background (container for appended stars) */
+.stars-container{position:fixed;inset:0;z-index:0;pointer-events:none}
+.star{
+  position:absolute;
+  top:-10px;
+  width:2px;
+  height:70px;
+  background: linear-gradient(white, rgba(255,255,255,0));
+  border-radius:50%;
+  opacity:0.85;
+  animation: star-fall linear infinite;
+}
+@keyframes star-fall{
+  from{ transform: translateY(-10px) }
+  to{ transform: translateY(110vh) }
+}
+
+/* Responsive tweaks */
+@media (max-width:880px){
+  .current-section{flex-direction:column;gap:12px}
+  .current-right{width:100%}
+  .forecast-card{min-width:180px}
+}
