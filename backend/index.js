@@ -1,20 +1,20 @@
-// index.js
+// backend/index.js
 import express from "express";
-import fetch from "node-fetch";
 import cors from "cors";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.OPENWEATHER_KEY;
 
-// ✅ Permitir acceso desde cualquier frontend (Vercel, Render, localhost, móvil, etc.)
+// ✅ CORS abierto
 app.use(cors({ origin: "*" }));
 
-// Endpoint Clima Actual
+// ✅ Clima actual
 app.get("/clima/:city", async (req, res) => {
-  const city = req.params.city;
+  const { city } = req.params;
   const lang = req.query.lang || "es";
 
   try {
@@ -22,10 +22,7 @@ app.get("/clima/:city", async (req, res) => {
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=${lang}`
     );
     const data = await response.json();
-
-    if (data.cod !== 200) {
-      return res.status(404).json({ error: data.message });
-    }
+    if (data.cod !== 200) return res.status(404).json({ error: data.message });
 
     res.json({
       ciudad: data.name,
@@ -35,31 +32,27 @@ app.get("/clima/:city", async (req, res) => {
       timezone: data.timezone,
       id: data.id
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: "Error al obtener el clima" });
   }
 });
 
-// Endpoint Pronóstico 24h
+// ✅ Pronóstico 24h
 app.get("/pronostico/:city", async (req, res) => {
-  const city = req.params.city;
+  const { city } = req.params;
   const lang = req.query.lang || "es";
 
   try {
-    const responseCity = await fetch(
+    const cityData = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=${lang}`
-    );
-    const cityData = await responseCity.json();
+    ).then(r => r.json());
 
-    if (cityData.cod !== 200) {
-      return res.status(404).json({ error: "Ciudad no encontrada" });
-    }
+    if (cityData.cod !== 200) return res.status(404).json({ error: "Ciudad no encontrada" });
 
     const { lat, lon } = cityData.coord;
-    const responseForecast = await fetch(
+    const forecastData = await fetch(
       `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=${lang}`
-    );
-    const forecastData = await responseForecast.json();
+    ).then(r => r.json());
 
     const hourly = forecastData.list.slice(0, 8).map(item => ({
       hora: new Date(item.dt * 1000).toLocaleTimeString("es-ES", {
@@ -71,12 +64,12 @@ app.get("/pronostico/:city", async (req, res) => {
     }));
 
     res.json(hourly);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: "Error al obtener pronóstico" });
   }
 });
 
 // ✅ Root test
-app.get("/", (req, res) => res.send("Backend funcionando ✅"));
+app.get("/", (_, res) => res.send("Backend funcionando ✅"));
 
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
