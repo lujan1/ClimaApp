@@ -25,7 +25,7 @@ function App() {
     setForecast([]);
 
     try {
-      const res = await fetch(`http://localhost:3000/clima/${encodeURIComponent(city)}?lang=es`);
+      const res = await fetch(`https://app-clima-delta-eight.vercel.app/clima/${encodeURIComponent(city)}?lang=es`);
       const data = await res.json();
       if (!res.ok || !data.ciudad) {
         setError(data.error || "Ciudad no encontrada");
@@ -44,7 +44,7 @@ function App() {
   // Fetch pronóstico 24h (usa endpoint /pronostico/:city)
   const fetchForecast = async (cityName) => {
     try {
-      const res = await fetch(`http://localhost:3000/pronostico/${encodeURIComponent(cityName)}?lang=es`);
+      const res = await fetch(`https://app-clima-delta-eight.vercel.app/pronostico/${encodeURIComponent(cityName)}?lang=es`);
       const data = await res.json();
       if (!res.ok || !Array.isArray(data)) {
         // backend devuelve array; si viene error, mostrar
@@ -128,7 +128,7 @@ function App() {
           </section>
         )}
 
-        <footer className="ui-footer">Backend: http://localhost:3000</footer>
+        <footer className="ui-footer">Backend: https://app-clima-delta-eight.vercel.app</footer>
       </div>
     </div>
   );
