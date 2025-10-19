@@ -1,4 +1,3 @@
-// App.jsx
 import { useState, useEffect } from "react";
 import "./App.css";
 import StarBackground from "./StarBackground";
@@ -12,11 +11,14 @@ function App() {
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
 
-  const API_BASE = "https://app-clima-zac9.onrender.com"; // ✅ backend en Render
+  // API Base según entorno
+  const API_BASE =
+    window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://app-clima-4-ztm9.onrender.com";
 
-  // Obtener clima actual
   const getWeather = async (e) => {
-    e && e.preventDefault();
+    e?.preventDefault();
     if (!city.trim()) return setError("Ingresa una ciudad válida");
 
     setError(null);
@@ -31,8 +33,6 @@ function App() {
         return;
       }
       setWeather(data);
-
-      // luego pedir pronóstico
       fetchForecast(city);
     } catch (err) {
       console.error(err);
@@ -40,7 +40,6 @@ function App() {
     }
   };
 
-  // Pronóstico 24h
   const fetchForecast = async (cityName) => {
     try {
       const res = await fetch(`${API_BASE}/pronostico/${encodeURIComponent(cityName)}?lang=es`);
@@ -56,16 +55,20 @@ function App() {
     }
   };
 
-  // Reloj según timezone del clima actual
   useEffect(() => {
-    if (weather && weather.timezone !== undefined) {
+    if (weather?.timezone !== undefined) {
       const updateClock = () => {
         const utc = Date.now() + new Date().getTimezoneOffset() * 60000;
-        const local = new Date(utc + (weather.timezone || 0) * 1000);
+        const local = new Date(utc + weather.timezone * 1000);
         setTime(local.toLocaleTimeString());
-        setDate(local.toLocaleDateString("es-ES", {
-          weekday: "long", day: "numeric", month: "long", year: "numeric"
-        }));
+        setDate(
+          local.toLocaleDateString("es-ES", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })
+        );
       };
       updateClock();
       const id = setInterval(updateClock, 1000);
@@ -101,9 +104,9 @@ function App() {
                 <div className="clock">🕒 {time}</div>
                 <div className="date">📅 {date}</div>
               </div>
-              <div className="temp-large">{weather.temperatura}</div>
+              <div className="temp-large">{weather.temperatura}°C</div>
               <div className="desc-large">{weather.clima}</div>
-              <div className="wind">💨 {weather.viento}</div>
+              <div className="wind">💨 {weather.viento} m/s</div>
             </div>
             <div className="current-right">
               <div className="big-advice">{generateAdvice(weather.clima)}</div>
@@ -111,7 +114,7 @@ function App() {
           </section>
         )}
 
-        {forecast && forecast.length > 0 && (
+        {forecast.length > 0 && (
           <section className="forecast-section">
             <h3 className="section-title">Pronóstico (24h)</h3>
             <ForecastCarousel data={forecast} />
@@ -126,25 +129,13 @@ function App() {
 
 function generateAdvice(climaDesc = "") {
   const d = climaDesc.toLowerCase();
-  if (d.includes("rain") || d.includes("lluv")) {
-    return "☔ Parece que lloverá — lleva sombrilla y cuida tus planes. ¡Disfruta con estilo incluso bajo la lluvia!";
-  }
-  if (d.includes("storm") || d.includes("thunder") || d.includes("torment")) {
-    return "⚡ Tormenta en camino — evita zonas abiertas y resguarda objetos sueltos. Seguridad primero.";
-  }
-  if (d.includes("snow") || d.includes("nieve")) {
-    return "❄ Nieve probable — abrígate, calzado antideslizante y disfruta del paisaje helado.";
-  }
-  if (d.includes("clear") || d.includes("despejad")) {
-    return "☀ Día soleado — protector solar y gafas. Hoy tu piel te lo agradecerá.";
-  }
-  if (d.includes("cloud") || d.includes("nubes")) {
-    return "☁ Nublado — perfecto para una pausa con café y buena música.";
-  }
-  if (d.includes("mist") || d.includes("fog") || d.includes("niebla")) {
-    return "🌫 Visibilidad reducida — maneja con precaución y mantén las luces encendidas.";
-  }
-  return "🌈 Mantente preparado: revisa la ropa según la temperatura y disfruta el día.";
+  if (d.includes("rain") || d.includes("lluv")) return "☔ Lleva sombrilla...";
+  if (d.includes("storm") || d.includes("thunder") || d.includes("torment")) return "⚡ Tormenta en camino...";
+  if (d.includes("snow") || d.includes("nieve")) return "❄ Nieve probable...";
+  if (d.includes("clear") || d.includes("despejad")) return "☀ Día soleado...";
+  if (d.includes("cloud") || d.includes("nubes")) return "☁ Nublado...";
+  if (d.includes("mist") || d.includes("fog") || d.includes("niebla")) return "🌫 Visibilidad reducida...";
+  return "🌈 Mantente preparado según la temperatura.";
 }
 
 export default App;

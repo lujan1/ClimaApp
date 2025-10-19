@@ -1,165 +1,102 @@
-// App.jsx
-import { useState, useEffect } from "react";
-import "./App.css";
-import StarBackground from "./StarBackground";
-import ForecastCarousel from "./ForecastCarousel";
+import express from "express";
+import fetch from "node-fetch";
+import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
-function App() {
-  const [city, setCity] = useState("");
-  const [weather, setWeather] = useState(null);
-  const [forecast, setForecast] = useState([]);
-  const [error, setError] = useState(null);
-  const [time, setTime] = useState("");
-  const [date, setDate] = useState("");
+dotenv.config();
 
-  // ✅ Detectar entorno: local o producción
-  const API_BASE =
-    window.location.hostname === "localhost"
-      ? "http://localhost:3000"
-      : "https://app-clima-4-ztm9.onrender.com"; // reemplaza con tu URL de Render
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  // Obtener clima actual
-  const getWeather = async (e) => {
-    e && e.preventDefault();
-    if (!city.trim()) return setError("Ingresa una ciudad válida");
+const app = express();
+const PORT = process.env.PORT || 3000; // Render asignará process.env.PORT
+const API_KEY = process.env.OPENWEATHER_KEY;
 
-    setError(null);
-    setWeather(null);
-    setForecast([]);
+// ⚡ Habilitar CORS solo si se necesita
+app.use(cors({ origin: "*" }));
 
-    try {
-      const res = await fetch(
-        `${API_BASE}/clima/${encodeURIComponent(city)}?lang=es`
-      );
-      const data = await res.json();
-      if (!res.ok || !data.ciudad) {
-        setError(data.error || "Ciudad no encontrada");
-        return;
-      }
-      setWeather(data);
+// ----------- RUTAS API -----------
 
-      // luego pedir pronóstico
-      fetchForecast(city);
-    } catch (err) {
-      console.error(err);
-      setError("Error al conectar con el backend");
+// Clima actual
+app.get("/clima/:city", async (req, res) => {
+  try {
+    const city = req.params.city;
+    const lang = req.query.lang || "es";
+
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=${lang}`
+    );
+    const data = await response.json();
+
+    if (data.cod !== 200) {
+      return res.status(404).json({ error: data.message || "Ciudad no encontrada" });
     }
-  };
 
-  // Pronóstico 24h
-  const fetchForecast = async (cityName) => {
-    try {
-      const res = await fetch(
-        `${API_BASE}/pronostico/${encodeURIComponent(cityName)}?lang=es`
-      );
-      const data = await res.json();
-      if (!res.ok || !Array.isArray(data)) {
-        setError(data.error || "No se pudo obtener pronóstico");
-        return;
-      }
-      setForecast(data);
-    } catch (err) {
-      console.error("Error pronóstico:", err);
-      setError("Error al obtener pronóstico");
+    res.json({
+      ciudad: data.name,
+      pais: data.sys.country,
+      temperatura: data.main.temp,
+      clima: data.weather[0].description,
+      icono: data.weather[0].icon,
+      viento: data.wind.speed,
+      humedad: data.main.humidity,
+      presion: data.main.pressure,
+      lat: data.coord.lat,
+      lon: data.coord.lon,
+      timezone: data.timezone,
+      id: data.id,
+    });
+  } catch (error) {
+    console.error("Error clima:", error);
+    res.status(500).json({ error: "Error al obtener el clima" });
+  }
+});
+
+// Pronóstico extendido (24h)
+app.get("/pronostico/:city", async (req, res) => {
+  try {
+    const city = req.params.city;
+    const lang = req.query.lang || "es";
+
+    // Obtener coordenadas
+    const cityData = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=${lang}`
+    ).then(r => r.json());
+
+    if (cityData.cod !== 200) {
+      return res.status(404).json({ error: "Ciudad no encontrada" });
     }
-  };
 
-  // Reloj según timezone del clima actual
-  useEffect(() => {
-    if (weather && weather.timezone !== undefined) {
-      const updateClock = () => {
-        const utc = Date.now() + new Date().getTimezoneOffset() * 60000;
-        const local = new Date(utc + (weather.timezone || 0) * 1000);
-        setTime(local.toLocaleTimeString());
-        setDate(
-          local.toLocaleDateString("es-ES", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })
-        );
-      };
-      updateClock();
-      const id = setInterval(updateClock, 1000);
-      return () => clearInterval(id);
-    }
-  }, [weather]);
+    const { lat, lon } = cityData.coord;
 
-  return (
-    <div className="app-shell">
-      <StarBackground />
+    const forecastData = await fetch(
+      `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=${lang}`
+    ).then(r => r.json());
 
-      <div className="ui-card">
-        <header className="ui-header">
-          <h1 className="brand">APP CLIMA</h1>
-          <form onSubmit={getWeather} className="search-row">
-            <input
-              className="search-input"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="Ej: London"
-            />
-            <button className="search-btn" type="submit">
-              Buscar
-            </button>
-          </form>
-        </header>
+    const hourly = forecastData.list.map(item => ({
+      fecha: item.dt_txt,
+      temperatura: item.main.temp,
+      descripcion: item.weather[0].description,
+      icono: item.weather[0].icon,
+    }));
 
-        {error && <div className="error-bar">{error}</div>}
-
-        {weather && (
-          <section className="current-section">
-            <div className="current-left">
-              <h2 className="city-name">{weather.ciudad}</h2>
-              <div className="meta-row">
-                <div className="clock">🕒 {time}</div>
-                <div className="date">📅 {date}</div>
-              </div>
-              <div className="temp-large">{weather.temperatura}°C</div>
-              <div className="desc-large">{weather.clima}</div>
-              <div className="wind">💨 {weather.viento} m/s</div>
-            </div>
-            <div className="current-right">
-              <div className="big-advice">{generateAdvice(weather.clima)}</div>
-            </div>
-          </section>
-        )}
-
-        {forecast && forecast.length > 0 && (
-          <section className="forecast-section">
-            <h3 className="section-title">Pronóstico (24h)</h3>
-            <ForecastCarousel data={forecast} />
-          </section>
-        )}
-
-        <footer className="ui-footer">Backend: {API_BASE}</footer>
-      </div>
-    </div>
-  );
-}
-
-function generateAdvice(climaDesc = "") {
-  const d = climaDesc.toLowerCase();
-  if (d.includes("rain") || d.includes("lluv")) {
-    return "☔ Parece que lloverá — lleva sombrilla y cuida tus planes. ¡Disfruta con estilo incluso bajo la lluvia!";
+    res.json(hourly);
+  } catch (error) {
+    console.error("Error pronóstico:", error);
+    res.status(500).json({ error: "Error al obtener pronóstico" });
   }
-  if (d.includes("storm") || d.includes("thunder") || d.includes("torment")) {
-    return "⚡ Tormenta en camino — evita zonas abiertas y resguarda objetos sueltos. Seguridad primero.";
-  }
-  if (d.includes("snow") || d.includes("nieve")) {
-    return "❄ Nieve probable — abrígate, calzado antideslizante y disfruta del paisaje helado.";
-  }
-  if (d.includes("clear") || d.includes("despejad")) {
-    return "☀ Día soleado — protector solar y gafas. Hoy tu piel te lo agradecerá.";
-  }
-  if (d.includes("cloud") || d.includes("nubes")) {
-    return "☁ Nublado — perfecto para una pausa con café y buena música.";
-  }
-  if (d.includes("mist") || d.includes("fog") || d.includes("niebla")) {
-    return "🌫 Visibilidad reducida — maneja con precaución y mantén las luces encendidas.";
-  }
-  return "🌈 Mantente preparado: revisa la ropa según la temperatura y disfruta el día.";
-}
+});
 
-export default App;
+// ----------- SERVIR FRONTEND REACT -----------
+// Asegúrate de hacer `npm run build` en frontend antes
+app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+// Cualquier otra ruta devuelve index.html
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
+});
+
+// ----------- INICIAR SERVIDOR -----------
+app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
