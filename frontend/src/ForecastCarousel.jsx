@@ -5,7 +5,7 @@ import ForecastCard from "./ForecastCard";
 /*
   Carrusel horizontal del pronóstico.
   Props:
-   - data: array de bloques pronóstico
+  - data: array de bloques pronóstico
 */
 
 export default function ForecastCarousel({ data }) {

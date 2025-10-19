@@ -11,14 +11,15 @@ function App() {
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
 
-  // API Base según entorno
+  // API_BASE cambia según si estás en localhost o en Render
   const API_BASE =
     window.location.hostname === "localhost"
       ? "http://localhost:3000"
       : "https://app-clima-4-ztm9.onrender.com";
 
+  // Obtener clima actual
   const getWeather = async (e) => {
-    e?.preventDefault();
+    e && e.preventDefault();
     if (!city.trim()) return setError("Ingresa una ciudad válida");
 
     setError(null);
@@ -26,13 +27,17 @@ function App() {
     setForecast([]);
 
     try {
-      const res = await fetch(`${API_BASE}/clima/${encodeURIComponent(city)}?lang=es`);
+      const res = await fetch(
+        `${API_BASE}/clima/${encodeURIComponent(city)}?lang=es`
+      );
       const data = await res.json();
       if (!res.ok || !data.ciudad) {
         setError(data.error || "Ciudad no encontrada");
         return;
       }
       setWeather(data);
+
+      // luego pedir pronóstico
       fetchForecast(city);
     } catch (err) {
       console.error(err);
@@ -40,9 +45,12 @@ function App() {
     }
   };
 
+  // Pronóstico 24h
   const fetchForecast = async (cityName) => {
     try {
-      const res = await fetch(`${API_BASE}/pronostico/${encodeURIComponent(cityName)}?lang=es`);
+      const res = await fetch(
+        `${API_BASE}/pronostico/${encodeURIComponent(cityName)}?lang=es`
+      );
       const data = await res.json();
       if (!res.ok || !Array.isArray(data)) {
         setError(data.error || "No se pudo obtener pronóstico");
@@ -55,11 +63,12 @@ function App() {
     }
   };
 
+  // Reloj según timezone del clima actual
   useEffect(() => {
-    if (weather?.timezone !== undefined) {
+    if (weather && weather.timezone !== undefined) {
       const updateClock = () => {
         const utc = Date.now() + new Date().getTimezoneOffset() * 60000;
-        const local = new Date(utc + weather.timezone * 1000);
+        const local = new Date(utc + (weather.timezone || 0) * 1000);
         setTime(local.toLocaleTimeString());
         setDate(
           local.toLocaleDateString("es-ES", {
@@ -90,7 +99,9 @@ function App() {
               onChange={(e) => setCity(e.target.value)}
               placeholder="Ej: London"
             />
-            <button className="search-btn" type="submit">Buscar</button>
+            <button className="search-btn" type="submit">
+              Buscar
+            </button>
           </form>
         </header>
 
@@ -114,7 +125,7 @@ function App() {
           </section>
         )}
 
-        {forecast.length > 0 && (
+        {forecast && forecast.length > 0 && (
           <section className="forecast-section">
             <h3 className="section-title">Pronóstico (24h)</h3>
             <ForecastCarousel data={forecast} />
@@ -127,15 +138,28 @@ function App() {
   );
 }
 
+// Generador de consejos según clima
 function generateAdvice(climaDesc = "") {
   const d = climaDesc.toLowerCase();
-  if (d.includes("rain") || d.includes("lluv")) return "☔ Lleva sombrilla...";
-  if (d.includes("storm") || d.includes("thunder") || d.includes("torment")) return "⚡ Tormenta en camino...";
-  if (d.includes("snow") || d.includes("nieve")) return "❄ Nieve probable...";
-  if (d.includes("clear") || d.includes("despejad")) return "☀ Día soleado...";
-  if (d.includes("cloud") || d.includes("nubes")) return "☁ Nublado...";
-  if (d.includes("mist") || d.includes("fog") || d.includes("niebla")) return "🌫 Visibilidad reducida...";
-  return "🌈 Mantente preparado según la temperatura.";
+  if (d.includes("rain") || d.includes("lluv")) {
+    return "☔ Parece que lloverá — lleva sombrilla y cuida tus planes. ¡Disfruta con estilo incluso bajo la lluvia!";
+  }
+  if (d.includes("storm") || d.includes("torment") || d.includes("thunder")) {
+    return "⚡ Tormenta en camino — evita zonas abiertas y resguarda objetos sueltos. Seguridad primero.";
+  }
+  if (d.includes("snow") || d.includes("nieve")) {
+    return "❄ Nieve probable — abrígate y disfruta del paisaje helado.";
+  }
+  if (d.includes("clear") || d.includes("despejad")) {
+    return "☀ Día soleado — protector solar y gafas recomendadas.";
+  }
+  if (d.includes("cloud") || d.includes("nubes")) {
+    return "☁ Nublado — un día perfecto para café y música.";
+  }
+  if (d.includes("mist") || d.includes("fog") || d.includes("niebla")) {
+    return "🌫 Visibilidad reducida — maneja con precaución.";
+  }
+  return "🌈 Mantente preparado y disfruta del día.";
 }
 
 export default App;

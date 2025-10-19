@@ -5,7 +5,7 @@ import AnimatedIcon from "./AnimatedIcon";
 /*
   Tarjeta individual del pronóstico.
   Props:
-   - item: { hora, temperatura, clima, mensaje }
+  - item: { hora, temperatura, clima, mensaje }
 */
 
 export default function ForecastCard({ item }) {
