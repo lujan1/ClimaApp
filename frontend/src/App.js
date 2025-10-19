@@ -1,19 +1,18 @@
-// App.jsx (archivo principal)
-// Contiene: buscador, clima actual, reloj con zona horaria, pronóstico 24h futurista
-
+// App.jsx
 import { useState, useEffect } from "react";
 import "./App.css";
 import StarBackground from "./StarBackground";
 import ForecastCarousel from "./ForecastCarousel";
 
 function App() {
-  // Estados
   const [city, setCity] = useState("");
-  const [weather, setWeather] = useState(null); // clima actual
-  const [forecast, setForecast] = useState([]); // pronóstico 24h
+  const [weather, setWeather] = useState(null);
+  const [forecast, setForecast] = useState([]);
   const [error, setError] = useState(null);
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
+
+  const API_BASE = "https://app-clima-zac9.onrender.com"; // ✅ backend en Render
 
   // Obtener clima actual
   const getWeather = async (e) => {
@@ -25,7 +24,7 @@ function App() {
     setForecast([]);
 
     try {
-      const res = await fetch(`https://app-clima-delta-eight.vercel.app/clima/${encodeURIComponent(city)}?lang=es`);
+      const res = await fetch(`${API_BASE}/clima/${encodeURIComponent(city)}?lang=es`);
       const data = await res.json();
       if (!res.ok || !data.ciudad) {
         setError(data.error || "Ciudad no encontrada");
@@ -33,21 +32,20 @@ function App() {
       }
       setWeather(data);
 
-      // luego pedir pronóstico 24h
-      fetchForecast(city, data.id || city); // data.id optional; backend uses city name
+      // luego pedir pronóstico
+      fetchForecast(city);
     } catch (err) {
       console.error(err);
       setError("Error al conectar con el backend");
     }
   };
 
-  // Fetch pronóstico 24h (usa endpoint /pronostico/:city)
+  // Pronóstico 24h
   const fetchForecast = async (cityName) => {
     try {
-      const res = await fetch(`https://app-clima-delta-eight.vercel.app/pronostico/${encodeURIComponent(cityName)}?lang=es`);
+      const res = await fetch(`${API_BASE}/pronostico/${encodeURIComponent(cityName)}?lang=es`);
       const data = await res.json();
       if (!res.ok || !Array.isArray(data)) {
-        // backend devuelve array; si viene error, mostrar
         setError(data.error || "No se pudo obtener pronóstico");
         return;
       }
@@ -58,7 +56,7 @@ function App() {
     }
   };
 
-  // Reloj según timezone del weather
+  // Reloj según timezone del clima actual
   useEffect(() => {
     if (weather && weather.timezone !== undefined) {
       const updateClock = () => {
@@ -77,11 +75,9 @@ function App() {
 
   return (
     <div className="app-shell">
-      {/* Fondo de estrellas independiente (no se re-renderiza con reloj) */}
       <StarBackground />
 
       <div className="ui-card">
-        {/* Buscador */}
         <header className="ui-header">
           <h1 className="brand">APP CLIMA</h1>
           <form onSubmit={getWeather} className="search-row">
@@ -95,10 +91,8 @@ function App() {
           </form>
         </header>
 
-        {/* Mensajes de error */}
         {error && <div className="error-bar">{error}</div>}
 
-        {/* CLIMA ACTUAL */}
         {weather && (
           <section className="current-section">
             <div className="current-left">
@@ -112,15 +106,11 @@ function App() {
               <div className="wind">💨 {weather.viento}</div>
             </div>
             <div className="current-right">
-              {/* Mensaje brillante según clima actual */}
-              <div className="big-advice">
-                {generateAdvice(weather.clima)}
-              </div>
+              <div className="big-advice">{generateAdvice(weather.clima)}</div>
             </div>
           </section>
         )}
 
-        {/* PRONÓSTICO HORIZONTAL 24H */}
         {forecast && forecast.length > 0 && (
           <section className="forecast-section">
             <h3 className="section-title">Pronóstico (24h)</h3>
@@ -128,15 +118,12 @@ function App() {
           </section>
         )}
 
-        <footer className="ui-footer">Backend: https://app-clima-delta-eight.vercel.app</footer>
+        <footer className="ui-footer">Backend: {API_BASE}</footer>
       </div>
     </div>
   );
 }
 
-/* ---------------------------------------------
-   Generador de mensajes motivacionales/subtiles
-   --------------------------------------------- */
 function generateAdvice(climaDesc = "") {
   const d = climaDesc.toLowerCase();
   if (d.includes("rain") || d.includes("lluv")) {
