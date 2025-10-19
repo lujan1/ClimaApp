@@ -1,5 +1,6 @@
 // backend/index.js
 import express from "express";
+import fetch from "node-fetch";
 import cors from "cors";
 import dotenv from "dotenv";
 
@@ -9,7 +10,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.OPENWEATHER_KEY;
 
-// ✅ CORS abierto
 app.use(cors({ origin: "*" }));
 
 // ✅ Clima actual
@@ -22,7 +22,10 @@ app.get("/clima/:city", async (req, res) => {
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=${lang}`
     );
     const data = await response.json();
-    if (data.cod !== 200) return res.status(404).json({ error: data.message });
+
+    if (data.cod !== 200) {
+      return res.status(404).json({ error: data.message });
+    }
 
     res.json({
       ciudad: data.name,
@@ -32,7 +35,7 @@ app.get("/clima/:city", async (req, res) => {
       timezone: data.timezone,
       id: data.id
     });
-  } catch {
+  } catch (error) {
     res.status(500).json({ error: "Error al obtener el clima" });
   }
 });
@@ -47,9 +50,12 @@ app.get("/pronostico/:city", async (req, res) => {
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=${lang}`
     ).then(r => r.json());
 
-    if (cityData.cod !== 200) return res.status(404).json({ error: "Ciudad no encontrada" });
+    if (cityData.cod !== 200) {
+      return res.status(404).json({ error: "Ciudad no encontrada" });
+    }
 
     const { lat, lon } = cityData.coord;
+
     const forecastData = await fetch(
       `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=${lang}`
     ).then(r => r.json());
@@ -64,7 +70,7 @@ app.get("/pronostico/:city", async (req, res) => {
     }));
 
     res.json(hourly);
-  } catch {
+  } catch (error) {
     res.status(500).json({ error: "Error al obtener pronóstico" });
   }
 });
