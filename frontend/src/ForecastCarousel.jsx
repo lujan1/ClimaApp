@@ -1,23 +1,22 @@
-// ForecastCarousel.jsx
 import React from "react";
-import ForecastCard from "./ForecastCard";
+import "./ForecastCarousel.css";
 
-/*
-  Carrusel horizontal del pronóstico.
-  Props:
-  - data: array de bloques pronóstico
-*/
-
-export default function ForecastCarousel({ data }) {
-  if (!data || data.length === 0) return null;
-
+const ForecastCarousel = ({ data = [] }) => {
   return (
-    <div className="forecast-outer">
-      <div className="forecast-track">
-        {data.map((item, idx) => (
-          <ForecastCard key={idx} item={item} />
-        ))}
-      </div>
+    <div className="carousel-container">
+      {data.map((item, index) => (
+        <div key={index} className="carousel-item">
+          <div>{new Date(item.fecha).getHours()}:00</div>
+          <img
+            src={`https://openweathermap.org/img/wn/${item.icono}@2x.png`}
+            alt={item.descripcion}
+          />
+          <div>{item.temperatura}°C</div>
+          <div className="desc">{item.descripcion}</div>
+        </div>
+      ))}
     </div>
   );
-}
+};
+
+export default ForecastCarousel;
