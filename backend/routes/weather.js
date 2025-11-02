@@ -6,7 +6,4 @@ const router = express.Router();
 router.get('/:city', getWeather);
 router.get('/', getWeather); // Para compatibilidad
 
-// Para pronóstico
-router.get('/pronostico/:city', getForecast);
-
 export default router;

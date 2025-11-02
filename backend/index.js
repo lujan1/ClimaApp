@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import weatherRoutes from './routes/weather.js';
+import forecastRoutes from './routes/forecast.js';
 
 dotenv.config();
 
@@ -21,7 +22,7 @@ app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 // Rutas API
 app.use('/clima', weatherRoutes);
-app.use('/pronostico', weatherRoutes); // Para pronóstico
+app.use('/pronostico', forecastRoutes);
 
 // Ruta raíz API
 app.get('/api', (req, res) => {
