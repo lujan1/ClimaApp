@@ -14,7 +14,7 @@ function App() {
   // API_BASE cambia según si estás en localhost o en Render
   const API_BASE =
     window.location.hostname === "localhost"
-      ? "http://localhost:3000"
+      ? "http://localhost:5000"
       : "https://app-clima-4-ztm9.onrender.com";
 
   // Obtener clima actual
@@ -36,7 +36,6 @@ function App() {
         return;
       }
       setWeather(data);
-
       // luego pedir pronóstico
       fetchForecast(city);
     } catch (err) {
@@ -88,7 +87,6 @@ function App() {
   return (
     <div className="app-shell">
       <StarBackground />
-
       <div className="ui-card">
         <header className="ui-header">
           <h1 className="brand">APP CLIMA</h1>
