@@ -11,11 +11,11 @@ function App() {
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
 
-  // API_BASE cambia según si estás en localhost o en Render
+  // API_BASE cambia según si estás en localhost o en producción
   const API_BASE =
     window.location.hostname === "localhost"
       ? "http://localhost:5000"
-      : "https://app-clima-4-ztm9.onrender.com";
+      : "";
 
   // Obtener clima actual
   const getWeather = async (e) => {
