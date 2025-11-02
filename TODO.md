@@ -19,5 +19,5 @@
 - [x] Probar localmente: npm run dev en backend, npm start en frontend.
 
 ## General
-- [ ] Asegurar que APIs funcionen correctamente.
-- [ ] Preparar para push a GitHub.
+- [x] Asegurar que APIs funcionen correctamente (agregar OPENWEATHER_KEY en .env).
+- [x] Preparar para push a GitHub.

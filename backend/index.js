@@ -14,7 +14,7 @@ app.use(express.json());
 
 // Rutas
 app.use('/clima', weatherRoutes);
-app.use('/pronostico', weatherRoutes);
+app.use('/', weatherRoutes); // Para pronóstico
 
 // Ruta raíz
 app.get('/', (req, res) => {
