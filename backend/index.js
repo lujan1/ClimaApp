@@ -28,6 +28,11 @@ app.use("/api/users", userRoutes);
 app.use("/clima", weatherRoutes);
 app.use("/pronostico", forecastRoutes);
 
+// Ruta raíz API
+app.get("/api", (req, res) => {
+  res.json({ message: "🌦️ API del Clima funcionando correctamente" });
+});
+
 app.use(express.static(path.join(__dirname, "../frontend/build")));
 
 app.get("*", (req, res) => {

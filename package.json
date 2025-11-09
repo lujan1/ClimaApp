@@ -1,0 +1,21 @@
+{
+  "name": "app-clima",
+  "version": "1.0.0",
+  "description": "Aplicación del clima con frontend React y backend Express",
+  "main": "index.js",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "build": "cd backend && npm run build",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "keywords": [
+    "clima",
+    "weather",
+    "react",
+    "express",
+    "mongodb"
+  ],
+  "author": "Carlos Daniel Luján Londoño",
+  "license": "MIT"
+}
