@@ -11,6 +11,13 @@ function App() {
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
 
+  // Estados para autenticación
+  const [user, setUser] = useState(null);
+  const [authMode, setAuthMode] = useState("login"); // "login" o "register"
+  const [authForm, setAuthForm] = useState({ nombre: "", email: "", password: "" });
+  const [authError, setAuthError] = useState(null);
+  const [authSuccess, setAuthSuccess] = useState(null);
+
   // API_BASE cambia según si estás en localhost o en producción
   const API_BASE =
     window.location.hostname === "localhost"
@@ -62,6 +69,50 @@ function App() {
     }
   };
 
+  // Funciones de autenticación
+  const handleAuthSubmit = async (e) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthSuccess(null);
+
+    const endpoint = authMode === "register" ? "/api/users/register" : "/api/users/login";
+
+    try {
+      const res = await fetch(`${API_BASE}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(authForm),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAuthError(data.error || data.message || "Error en autenticación");
+        return;
+      }
+
+      setAuthSuccess(data.message || "Operación exitosa");
+      if (authMode === "login") {
+        setUser(data.user);
+        setAuthForm({ nombre: "", email: "", password: "" });
+      } else {
+        // Registro exitoso, cambiar a login
+        setAuthMode("login");
+        setAuthForm({ nombre: "", email: "", password: "" });
+      }
+    } catch (err) {
+      console.error(err);
+      setAuthError("Error al conectar con el servidor");
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    setAuthMode("login");
+    setAuthForm({ nombre: "", email: "", password: "" });
+    setAuthError(null);
+    setAuthSuccess(null);
+  };
+
   // Reloj según timezone del clima actual
   useEffect(() => {
     if (weather && weather.timezone !== undefined) {
@@ -90,6 +141,17 @@ function App() {
       <div className="ui-card">
         <header className="ui-header">
           <h1 className="brand">APP CLIMA</h1>
+          {user ? (
+            <div className="user-info">
+              <span>👤 {user.nombre} ({user.email})</span>
+              <button onClick={logout} className="logout-btn">Cerrar Sesión</button>
+            </div>
+          ) : (
+            <div className="auth-section">
+              <button onClick={() => setAuthMode("login")} className={authMode === "login" ? "active" : ""}>Iniciar Sesión</button>
+              <button onClick={() => setAuthMode("register")} className={authMode === "register" ? "active" : ""}>Registrarse</button>
+            </div>
+          )}
           <form onSubmit={getWeather} className="search-row">
             <input
               className="search-input"
@@ -102,6 +164,42 @@ function App() {
             </button>
           </form>
         </header>
+
+        {!user && (
+          <section className="auth-form-section">
+            <h2>{authMode === "login" ? "Iniciar Sesión" : "Registrarse"}</h2>
+            <form onSubmit={handleAuthSubmit} className="auth-form">
+              {authMode === "register" && (
+                <input
+                  type="text"
+                  placeholder="Nombre"
+                  value={authForm.nombre}
+                  onChange={(e) => setAuthForm({ ...authForm, nombre: e.target.value })}
+                  required
+                />
+              )}
+              <input
+                type="email"
+                placeholder="Email"
+                value={authForm.email}
+                onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Contraseña"
+                value={authForm.password}
+                onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
+                required
+              />
+              <button type="submit" className="auth-submit-btn">
+                {authMode === "login" ? "Iniciar Sesión" : "Registrarse"}
+              </button>
+            </form>
+            {authError && <div className="auth-error">{authError}</div>}
+            {authSuccess && <div className="auth-success">{authSuccess}</div>}
+          </section>
+        )}
 
         {error && <div className="error-bar">{error}</div>}
 
