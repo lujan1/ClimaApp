@@ -15,7 +15,7 @@ const router = express.Router();
 router.post("/register", addUser);
 
 // Iniciar sesión
-const loginUser = async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -33,14 +33,15 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Contraseña incorrecta" });
     }
 
-    res.status(200).json({ message: "Inicio de sesión exitoso", user: { nombre: user.nombre, email: user.email } });
+    res.status(200).json({
+      message: "Inicio de sesión exitoso",
+      user: { nombre: user.nombre, email: user.email },
+    });
   } catch (error) {
     console.error("Error en login:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
-};
-
-router.post("/login", loginUser);
+});
 
 // Listar todos los usuarios
 router.get("/", listAllUsers);

@@ -10,8 +10,7 @@ import { connectDB } from "./db.js";
 
 import weatherRoutes from "./routes/weather.js";
 import forecastRoutes from "./routes/forecast.js";
-import userRoutes from "./routes/UserRoutes.js";
-
+import userRoutes from "./routes/userRoutes.js"; // 👈 Nombre corregido (en minúsculas)
 
 // Cargar variables de entorno
 dotenv.config();
@@ -29,6 +28,8 @@ const __dirname = path.dirname(__filename);
 // ============================
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 // ============================
 // RUTAS API
@@ -36,6 +37,7 @@ app.use(express.json());
 
 // Rutas de usuarios (registro, login, etc.)
 app.use("/api/users", userRoutes);
+console.log("✅ Rutas de usuario cargadas en /api/users");
 
 // Rutas de clima
 app.use("/clima", weatherRoutes);

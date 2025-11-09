@@ -10,8 +10,8 @@ export const addUser = async (req, res) => {
       return res.status(400).json({ message: "Todos los campos son obligatorios" });
     }
 
-    const userExist = await User.findOne({ email });
-    if (userExist) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({ message: "El usuario ya existe" });
     }
 
@@ -19,9 +19,12 @@ export const addUser = async (req, res) => {
     const newUser = new User({ nombre, email, password: hashedPassword });
     await newUser.save();
 
-    res.status(201).json({ message: "Usuario creado con éxito", user: { nombre: newUser.nombre, email: newUser.email } });
+    res.status(201).json({
+      message: "Usuario creado con éxito",
+      user: { nombre: newUser.nombre, email: newUser.email },
+    });
   } catch (error) {
-    console.error("Error al crear usuario:", error);
+    console.error("❌ Error al crear usuario:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
 };
@@ -29,10 +32,10 @@ export const addUser = async (req, res) => {
 // Listar todos los usuarios
 export const listAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password');
+    const users = await User.find().select("-password");
     res.status(200).json(users);
   } catch (error) {
-    console.error("Error al listar usuarios:", error);
+    console.error("❌ Error al listar usuarios:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
 };
@@ -40,11 +43,11 @@ export const listAllUsers = async (req, res) => {
 // Listar usuario por ID
 export const listUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
+    const user = await User.findById(req.params.id).select("-password");
     if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
     res.status(200).json(user);
   } catch (error) {
-    console.error("Error al buscar usuario:", error);
+    console.error("❌ Error al buscar usuario:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
 };
@@ -53,12 +56,15 @@ export const listUserById = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true }).select('-password');
-    if (!updatedUser) return res.status(404).json({ message: "Usuario no encontrado" });
+    const updatedUser = await User.findByIdAndUpdate(id, req.body, {
+      new: true,
+    }).select("-password");
+    if (!updatedUser)
+      return res.status(404).json({ message: "Usuario no encontrado" });
 
     res.status(200).json({ message: "Usuario actualizado", user: updatedUser });
   } catch (error) {
-    console.error("Error al actualizar usuario:", error);
+    console.error("❌ Error al actualizar usuario:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
 };
@@ -68,11 +74,12 @@ export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await User.findByIdAndDelete(id);
-    if (!deleted) return res.status(404).json({ message: "Usuario no encontrado" });
+    if (!deleted)
+      return res.status(404).json({ message: "Usuario no encontrado" });
 
     res.status(200).json({ message: "Usuario eliminado con éxito" });
   } catch (error) {
-    console.error("Error al eliminar usuario:", error);
+    console.error("❌ Error al eliminar usuario:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
 };
