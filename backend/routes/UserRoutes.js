@@ -1,77 +1,55 @@
 import express from "express";
-import bcrypt from "bcrypt";
-import User from "../models/User.js";
+import {
+  addUser,
+  listAllUsers,
+  listUserById,
+  updateUser,
+  deleteUser
+} from "../controllers/User.Controller.js";
 
 const router = express.Router();
 
-// Registrar usuario
-router.post("/register", async (req, res) => {
-  try {
-    const { nombre, email, password } = req.body;
-
-    if (!nombre || !email || !password) {
-      return res.status(400).json({ error: "Todos los campos son requeridos" });
-    }
-
-    const userExistente = await User.findOne({ email });
-    if (userExistente)
-      return res.status(400).json({ error: "El correo ya está registrado" });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const nuevoUsuario = new User({ nombre, email, password: hashedPassword });
-    await nuevoUsuario.save();
-
-    res.status(201).json({ mensaje: "Usuario registrado correctamente" });
-  } catch (error) {
-    console.error("Error en registro:", error);
-    res.status(500).json({ error: "Error en el servidor" });
-  }
-});
+// Crear usuario (registro)
+router.post("/register", addUser);
 
 // Iniciar sesión
-router.post("/login", async (req, res) => {
+export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const usuario = await User.findOne({ email });
 
-    if (!usuario)
-      return res.status(400).json({ error: "Usuario no encontrado" });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email y contraseña son obligatorios" });
+    }
 
-    const valido = await bcrypt.compare(password, usuario.password);
-    if (!valido)
-      return res.status(400).json({ error: "Contraseña incorrecta" });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Usuario no encontrado" });
+    }
 
-    res.json({ mensaje: "Inicio de sesión exitoso", usuario });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Contraseña incorrecta" });
+    }
+
+    res.status(200).json({ message: "Inicio de sesión exitoso", user: { nombre: user.nombre, email: user.email } });
   } catch (error) {
     console.error("Error en login:", error);
-    res.status(500).json({ error: "Error en el servidor" });
+    res.status(500).json({ message: "Error del servidor" });
   }
-});
+};
 
-// Endpoint temporal para listar usuarios (solo para desarrollo) - REMOVER EN PRODUCCIÓN
-router.get("/", async (req, res) => {
-  try {
-    const usuarios = await User.find({}, { password: 0 }); // Excluir contraseña
-    res.json(usuarios);
-  } catch (error) {
-    console.error("Error al obtener usuarios:", error);
-    res.status(500).json({ error: "Error en el servidor" });
-  }
-});
+router.post("/login", loginUser);
 
-// Endpoint para eliminar usuario por ID (solo para desarrollo/testing con Postman) - REMOVER EN PRODUCCIÓN
-router.delete("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const usuarioEliminado = await User.findByIdAndDelete(id);
-    if (!usuarioEliminado) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-    res.json({ mensaje: "Usuario eliminado correctamente" });
-  } catch (error) {
-    console.error("Error al eliminar usuario:", error);
-    res.status(500).json({ error: "Error en el servidor" });
-  }
-});
+// Listar todos los usuarios
+router.get("/", listAllUsers);
+
+// Listar usuario por ID
+router.get("/:id", listUserById);
+
+// Actualizar usuario
+router.put("/:id", updateUser);
+
+// Eliminar usuario
+router.delete("/:id", deleteUser);
 
 export default router;
