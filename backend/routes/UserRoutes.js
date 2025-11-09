@@ -59,4 +59,19 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Endpoint para eliminar usuario por ID (solo para desarrollo/testing con Postman) - REMOVER EN PRODUCCIÓN
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const usuarioEliminado = await User.findByIdAndDelete(id);
+    if (!usuarioEliminado) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+    res.json({ mensaje: "Usuario eliminado correctamente" });
+  } catch (error) {
+    console.error("Error al eliminar usuario:", error);
+    res.status(500).json({ error: "Error en el servidor" });
+  }
+});
+
 export default router;
