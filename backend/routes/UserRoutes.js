@@ -1,4 +1,6 @@
 import express from "express";
+import bcrypt from "bcrypt";
+import User from "../models/User.js";
 import {
   addUser,
   listAllUsers,
@@ -13,7 +15,7 @@ const router = express.Router();
 router.post("/register", addUser);
 
 // Iniciar sesión
-export const loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
