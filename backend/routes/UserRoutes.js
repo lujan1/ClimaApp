@@ -48,4 +48,15 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// Endpoint temporal para listar usuarios (solo para desarrollo) - REMOVER EN PRODUCCIÓN
+router.get("/", async (req, res) => {
+  try {
+    const usuarios = await User.find({}, { password: 0 }); // Excluir contraseña
+    res.json(usuarios);
+  } catch (error) {
+    console.error("Error al obtener usuarios:", error);
+    res.status(500).json({ error: "Error en el servidor" });
+  }
+});
+
 export default router;
