@@ -10,7 +10,8 @@ import { connectDB } from "./db.js";
 
 import weatherRoutes from "./routes/weather.js";
 import forecastRoutes from "./routes/forecast.js";
-import userRoutes from "./routes/userRoutes.js";
+import userRoutes from "./routes/UserRoutes.js";
+
 
 // Cargar variables de entorno
 dotenv.config();

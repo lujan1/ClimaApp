@@ -1,8 +1,7 @@
-// backend/controllers/User.Controller.js
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 
-// Crear usuario
+// Crear usuario (registro)
 export const addUser = async (req, res) => {
   try {
     const { nombre, email, password } = req.body;
@@ -23,14 +22,14 @@ export const addUser = async (req, res) => {
     res.status(201).json({ message: "Usuario creado con éxito", user: { nombre: newUser.nombre, email: newUser.email } });
   } catch (error) {
     console.error("Error al crear usuario:", error);
-    res.status(500).json({ message: "Error del servidor", error });
+    res.status(500).json({ message: "Error del servidor" });
   }
 };
 
 // Listar todos los usuarios
 export const listAllUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find().select('-password');
     res.status(200).json(users);
   } catch (error) {
     console.error("Error al listar usuarios:", error);
@@ -41,7 +40,7 @@ export const listAllUsers = async (req, res) => {
 // Listar usuario por ID
 export const listUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).select('-password');
     if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
     res.status(200).json(user);
   } catch (error) {
@@ -54,7 +53,7 @@ export const listUserById = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true }).select('-password');
     if (!updatedUser) return res.status(404).json({ message: "Usuario no encontrado" });
 
     res.status(200).json({ message: "Usuario actualizado", user: updatedUser });
