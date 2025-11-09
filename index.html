@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - App Clima</title>
+    <!-- Enlace al archivo CSS externo -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sol moviéndose -->
+    <div class="sun"></div>
+
+    <!-- Nubes flotantes -->
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+
+    <div class="container">
+        <h1>Bienvenido a App Clima</h1>
+        <p>Regístrate para acceder a la aplicación del clima.</p>
+
+        <!-- Botón para alternar entre registro y login -->
+        <button id="toggleButton">Ingresar</button>
+
+        <!-- Formulario de registro -->
+        <form id="registroForm">
+            <label for="primerNombre">Primer Nombre:</label>
+            <input type="text" id="primerNombre" name="primerNombre" required>
+
+            <label for="segundoNombre">Segundo Nombre:</label>
+            <input type="text" id="segundoNombre" name="segundoNombre">
+
+            <label for="primerApellido">Primer Apellido:</label>
+            <input type="text" id="primerApellido" name="primerApellido" required>
+
+            <label for="segundoApellido">Segundo Apellido:</label>
+            <input type="text" id="segundoApellido" name="segundoApellido">
+
+            <label for="documento">Documento de Identidad:</label>
+            <input type="text" id="documento" name="documento" required>
+
+            <label for="telefono">Teléfono:</label>
+            <input type="tel" id="telefono" name="telefono" required>
+
+            <label for="email">Correo:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Registrarse</button>
+        </form>
+
+        <!-- Formulario de login (oculto inicialmente) -->
+        <div id="loginSection" style="display: none;">
+            <h3>Iniciar Sesión</h3>
+            <form id="loginForm">
+                <label for="loginId">Documento de Identidad:</label>
+                <input type="text" id="loginId" name="loginId" required>
+
+                <label for="loginPassword">Contraseña:</label>
+                <input type="password" id="loginPassword" name="loginPassword" required>
+
+                <button type="submit">Iniciar Sesión</button>
+            </form>
+        </div>
+
+        <!-- Sección PQRS -->
+        <div class="pqrs">
+            <h3>PQRS (Peticiones, Quejas, Reclamos, Sugerencias)</h3>
+            <form id="pqrsForm">
+                <label for="pqrsTipo">Tipo:</label>
+                <select id="pqrsTipo" name="pqrsTipo" required>
+                    <option value="">Selecciona</option>
+                    <option value="peticion">Petición</option>
+                    <option value="queja">Queja</option>
+                    <option value="reclamo">Reclamo</option>
+                    <option value="sugerencia">Sugerencia</option>
+                </select>
+
+                <label for="pqrsMensaje">Mensaje:</label>
+                <textarea id="pqrsMensaje" name="pqrsMensaje" rows="4" required></textarea>
+
+                <button type="submit">Enviar PQRS</button>
+            </form>
+        </div>
+
+        <!-- Botón flotante de WhatsApp -->
+        <a href="https://wa.me/573183384076" target="_blank" class="whatsapp-float">
+            <img src="https://img.icons8.com/color/48/000000/whatsapp.png" alt="WhatsApp" />
+        </a>
+
+        <!-- Derechos de autor -->
+        <div class="footer">
+            <p>&copy; 2023 App Clima. Todos los derechos reservados.</p>
+        </div>
+    </div>
+
+    <!-- Enlace al archivo JavaScript externo -->
+    <script src="script.js"></script>
+</body>
+</html>

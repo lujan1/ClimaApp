@@ -21,3 +21,10 @@
 ## General
 - [x] Asegurar que APIs funcionen correctamente (agregar OPENWEATHER_KEY en .env).
 - [x] Preparar para push a GitHub.
+
+## Autenticación
+- [x] Integrar formularios de registro y login en frontend
+- [x] Conectar con APIs del backend (/api/users/register y /login)
+- [x] Actualizar estilos CSS para autenticación
+- [x] Mostrar info de usuario logueado y botón de logout
+- [x] Ocultar clima hasta que usuario esté autenticado
