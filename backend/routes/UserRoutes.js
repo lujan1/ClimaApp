@@ -11,10 +11,9 @@ import {
 
 const router = express.Router();
 
-// Crear usuario (registro)
+// ⚠️ Primero las rutas específicas
 router.post("/register", addUser);
 
-// Iniciar sesión
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -43,16 +42,10 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Listar todos los usuarios
+// Luego las rutas genéricas
 router.get("/", listAllUsers);
-
-// Listar usuario por ID
 router.get("/:id", listUserById);
-
-// Actualizar usuario
 router.put("/:id", updateUser);
-
-// Eliminar usuario
 router.delete("/:id", deleteUser);
 
 export default router;
