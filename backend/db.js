@@ -9,7 +9,7 @@ dotenv.config();
 export const connectDB = async () => {
   try {
     // Obtener la URI de MongoDB de las variables de entorno o usar valor por defecto
-    const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/app-clima";
+    const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/app-clima";
 
     // Intentar conectar a MongoDB
     await mongoose.connect(mongoUri);
