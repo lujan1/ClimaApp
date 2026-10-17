@@ -28,10 +28,12 @@ function App() {
       ? "http://localhost:5000"
       : "";
 
-  // Obtener clima actual
-  const getWeather = async (e) => {
-    e && e.preventDefault();
-    if (!city.trim()) return setError("Ingresa una ciudad válida");
+  // Obtener clima actual (Acepta nombre de ciudad opcional para búsquedas automáticas)
+  const getWeather = async (e, cityNameOverride = null) => {
+    if (e && typeof e.preventDefault === "function") e.preventDefault();
+    
+    const targetCity = cityNameOverride || city;
+    if (!targetCity || !targetCity.trim()) return setError("Ingresa una ciudad válida");
 
     setError(null);
     setWeather(null);
@@ -39,7 +41,7 @@ function App() {
 
     try {
       const res = await fetch(
-        `${API_BASE}/clima/${encodeURIComponent(city)}?lang=es`
+        `${API_BASE}/clima/${encodeURIComponent(targetCity)}?lang=es`
       );
       const data = await res.json();
       if (!res.ok || !data.ciudad) {
@@ -48,7 +50,7 @@ function App() {
       }
       setWeather(data);
       // luego pedir pronóstico
-      fetchForecast(city);
+      fetchForecast(targetCity);
     } catch (err) {
       console.error(err);
       setError("Error al conectar con el backend");
@@ -73,6 +75,41 @@ function App() {
     }
   };
 
+  // Geolocalización automática al cargar la app
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          try {
+            // Usamos un servicio gratuito de geolocalización inversa para obtener el nombre de la ciudad actual
+            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+            const geoData = await geoRes.json();
+            const ciudadDetectada = geoData.address.city || geoData.address.town || geoData.address.village || "Bogota";
+            
+            setCity(ciudadDetectada);
+            getWeather(null, ciudadDetectada);
+          } catch (geoError) {
+            console.warn("No se pudo traducir la ubicación, usando valor por defecto:", geoError);
+            setCity("Bogota");
+            getWeather(null, "Bogota");
+          }
+        },
+        (error) => {
+          console.warn("Permiso de ubicación denegado o no disponible:", error.message);
+          setCity("Bogota");
+          getWeather(null, "Bogota");
+        }
+      );
+    } else {
+      setCity("Bogota");
+      getWeather(null, "Bogota");
+    }
+  }, []);
+
   // Funciones de autenticación
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
@@ -96,13 +133,11 @@ function App() {
 
       setAuthSuccess(data.message || "Operación exitosa");
       if (authMode === "login") {
-        // Login exitoso - mostrar la app del clima
         setUser(data.user);
         setAuthForm({ nombre: "", email: "", password: "" });
         setAuthError(null);
         setAuthSuccess(null);
       } else {
-        // Registro exitoso - cambiar automáticamente a login
         setAuthMode("login");
         setAuthForm({ nombre: "", email: "", password: "" });
         setAuthError(null);
@@ -124,8 +159,7 @@ function App() {
       return;
     }
 
-    // Por ahora solo mostrar mensaje (puedes implementar envío real después)
-    setPqrsSuccess(`PQRS enviado: ${pqrsForm.tipo} - ${pqrsForm.mensaje}`);
+    setPqrsSuccess(`PQRS enviado: ${pqrsForm.tipo}\n${pqrsForm.mensaje}`);
     setPqrsForm({ tipo: "", mensaje: "" });
   };
 

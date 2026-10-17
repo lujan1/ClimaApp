@@ -4,7 +4,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import { connectDB } from "./db.js";
 import userRoutes from "./routes/UserRoutes.js";
 import weatherRoutes from "./routes/weather.js";
 import forecastRoutes from "./routes/forecast.js";
@@ -14,9 +13,6 @@ dotenv.config();
 
 // Crear instancia de Express
 const app = express();
-
-// Conectar a la base de datos MongoDB
-connectDB();
 
 // Definir puerto del servidor
 const PORT = process.env.PORT || 5000;

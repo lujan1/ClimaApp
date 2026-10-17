@@ -1,29 +1,28 @@
-// Importaciones necesarias para la conexión a la base de datos
-import mongoose from "mongoose";
+import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 
-// Configurar variables de entorno
 dotenv.config();
 
-// Función para conectar a la base de datos MongoDB
+// Crear un pool de conexiones a MySQL
+export const pool = mysql.createPool({
+  host: process.env.DB_HOST || "localhost",
+  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 33061,
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "app_clima_db",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
 export const connectDB = async () => {
   try {
-    // Obtener la URI de MongoDB de las variables de entorno
-    const mongoUri = process.env.MONGO_URI;
-
-    if (!mongoUri) {
-      console.error("❌ MONGO_URI no está definida en las variables de entorno");
-      process.exit(1);
-    }
-
-    // Intentar conectar a MongoDB sin opciones deprecated
-    await mongoose.connect(mongoUri);
-
-    // Mensaje de éxito en la conexión
-    console.log("✅ Conectado a MongoDB correctamente");
+    // Probamos la conexión obteniendo un cliente del pool
+    const connection = await pool.getConnection();
+    console.log("✅ Conectado a MySQL correctamente");
+    connection.release(); // Soltamos la conexión para que otros la usen
   } catch (error) {
-    // Log del error y salida del proceso si falla la conexión
-    console.error("❌ Error al conectar a MongoDB:", error.message);
+    console.error("❌ Error al conectar a MySQL:", error.message);
     process.exit(1);
   }
 };

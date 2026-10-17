@@ -15,7 +15,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
-    "mongoose": "^8.19.2",
+    "mysql2": "^3.24.6",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
